@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        body,ul,ol,li,img {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        #box {
+            width: 500px;
+            height: 200px;
+            padding: 7px;
+            /*background-color: red;*/
+            border: 1px solid #ccc;
+            margin: 100px auto;
+            position: relative;
+        }
+        .ad {
+            width: 500px;
+            height: 200px;
+            position: relative;
+        }
+        #box img {
+            width: 500px;
+        }
+        .ad ul li{
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            float: left;
+        }
+        .ad ul {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3000px;
+        }
+        .ad ul li.current {
+            background: yellow;
+        }
+        .ad ol {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            line-height: 20px;
+            text-align: center;
+        }
+        .ad ol li {
+            float: left;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        .ad ol li.current {
+            background: yellow;
+        }
+        #arr {
+            display: none;
+        }
+        #arr span {   /*定位了的行内元素就脱标了，就可以设置宽高了*/
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            position: absolute;
+            /*left: 5px;*/
+            top: 50%;
+            margin-top: -20px;
+            background-color: #000;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            font-family: '黑体';
+            font-size: 30px;
+            color: #fff;
+            opacity: 0.3;
+            border: 1px solid #fff;
+        }
+        #arr #left{
+            left: 5px;
+        }
+        #arr #right {
+            right: 5px;
+            /*left: auto;*/
+        }
+    </style>
+</head>
+<body>
+<div id="box" class="all">
+    <div class="ad">
+        <ul id="imgs">
+            <li><img src="images/1.jpg" width='500' height='200' alt=""/></li>
+            <li><img src="images/2.jpg" width='500' height='200' alt=""/></li>
+            <li><img src="images/3.jpg" width='500' height='200' alt=""/></li>
+            <li><img src="images/4.jpg" width='500' height='200' alt=""/></li>
+            <li><img src="images/5.jpg" width='500' height='200' alt=""/></li>
+        </ul>
+        <ol>
+            <!--<li></li>-->
+        </ol>
+    </div>
+    <div id="arr">
+        <span id="left">&lt;</span>
+        <span id="right">&gt;</span>
+    </div>
+</div>
+
+<script>
+    // 1. 先获得所有的对象
+    var box = document.getElementById("box");
+    var ad = box.children[0];
+    var ul = document.getElementById("imgs");
+    var lis = ul.children;
+    var ol = ad.children[1];
+    var arr = document.getElementById("arr");
+    var arrLeft = document.getElementById("left");
+    var arrRight = document.getElementById("right");
+    var imgWidth = ad.offsetWidth;
+
+    // 2. 根据图片的个数动态的生成(创建)小方块
+    for(var i=0;i<lis.length;i++){
+        var li = document.createElement("li");
+        li.innerHTML = i+1;
+        ol.appendChild(li);// 追加到ol里面
+    }
+    // 让第一个小方块显示黄色
+    var olLis = ol.children;
+    olLis[0].className = 'current';
+
+    // 3. 鼠标移入对应的小方块的时候，当前的小方块显示黄色，其它的变为无色
+    for(var j=0;j<olLis.length;j++){
+        olLis[j].index = j;//给小方块添加一个属性，来存储索引值
+        olLis[j].onmouseover = function(){
+            for(var k=0;k<olLis.length;k++){
+                olLis[k].className = '';//排它，让所有的先变成白色，也就是清空类样式
+            }
+            this.className = 'current';
+            // 4. 鼠标移入小方块，显示对应的图片  比如放入第3个小方块，就显示第3张图片，也就是让ul向左移动
+            var target =  -imgWidth*this.index;              // 所谓的目标位置就是让ul移动的距离，这个距离刚才是N个图片的宽度
+            animate(ul,target);
+        }
+    }
+
+
+    function animate(obj,target){
+        clearInterval(obj.timeId);//每次点击了按钮之后，先清空定时器
+        obj.timeId= setInterval(function(){
+            var step = 20;
+            // 先获得demo对象的当前位置
+            var leader = obj.offsetLeft;//先获得当前的距离左侧的位置   offsetLeft是只读属性，只能用来获得数据 值
+            step = leader<target?step:-step;
+            if(Math.abs(leader-target) > Math.abs(step)){   // 当当前对象的位置和目标位置有距离的时候，才会不断的加步长进行匀速移动
+                leader = leader + step; // 当前对象的位置与目标位置的距离 大于步长step的话，才需要不断的加步长进行匀速移动
+                obj.style.left = leader + 'px';
+            }else{
+                clearInterval(obj.timeId);//清空定时器
+                obj.style.left=target+'px';//因为最后的距离 不足一个步长50了，但是清空定时器之后并没有到达指定的时候，所以在清空定时器之后，手动的设置成目标位置
+            }
+
+        },15);
+    }
+</script>
+</body>
+</html>
